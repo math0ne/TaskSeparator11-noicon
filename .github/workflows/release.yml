@@ -31,20 +31,10 @@ jobs:
         New-Item -ItemType Directory -Force -Path release
         New-Item -ItemType Directory -Force -Path release/icons
 
-        # Copy TaskSplitter11 files (excluding icons directory if present)
-        Get-ChildItem "TaskSplitter11/bin/Release/net6.0-windows" -Exclude icons | Copy-Item -Destination release/ -Recurse -Force
+        # Copy all TaskSplitter11 files (excluding Shortcuts directory if present)
+        Get-ChildItem "TaskSplitter11/bin/Release/net6.0-windows" -Exclude Shortcuts,icons | Copy-Item -Destination release/ -Recurse -Force
 
-        # Copy Splitter files
-        Copy-Item "Splitter/bin/Release/net6.0-windows/Splitter.exe" -Destination release/ -Force
-        Copy-Item "Splitter/bin/Release/net6.0-windows/Splitter.dll" -Destination release/ -Force
-        Copy-Item "Splitter/bin/Release/net6.0-windows/Splitter.runtimeconfig.json" -Destination release/ -Force
-
-        # Copy SplitterBlank files
-        Copy-Item "SplitterBlank/bin/Release/net6.0-windows/SplitterBlank.exe" -Destination release/ -Force
-        Copy-Item "SplitterBlank/bin/Release/net6.0-windows/SplitterBlank.dll" -Destination release/ -Force
-        Copy-Item "SplitterBlank/bin/Release/net6.0-windows/SplitterBlank.runtimeconfig.json" -Destination release/ -Force
-
-        # Copy icons from source directories
+        # Copy icons from source directories (icons were excluded above)
         Copy-Item "Splitter/icons/separator.ico" -Destination release/icons/ -Force
         Copy-Item "SplitterBlank/icons/dark-gray.ico" -Destination release/icons/ -Force
         Copy-Item "SplitterBlank/icons/ultra-faint.ico" -Destination release/icons/ -Force -ErrorAction SilentlyContinue
