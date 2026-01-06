@@ -1,6 +1,5 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using IWshRuntimeLibrary;
 using WindowsShortcutFactory;
 using File = System.IO.File;
 
@@ -45,49 +44,70 @@ namespace TaskSplitter11
 
         private void btnCreate_Click(object sender, EventArgs e)
         {
+            CreateSeparator("Splitter.exe");
+        }
 
-            //Setup & config
-            var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string appPath = Path.GetDirectoryName(Application.ExecutablePath);
-            string shortcutsPath = Path.Join(docsPath, "TaskSeparator11", "Shortcuts");
-            Directory.CreateDirectory(shortcutsPath);
+        private void btnCreateBlank_Click(object sender, EventArgs e)
+        {
+            CreateSeparator("SplitterBlank.exe");
+        }
 
-            //Ensure files are in thwe right place
-            EnsureSplitterFilesAreAvailable(appPath, shortcutsPath);
-            
-
-
-            //Make a copy of the Splitter exe
-            string splitterExe = Path.Join(appPath, "Splitter.exe");
-            string splitterExeLocation = GetNewLinkName(shortcutsPath, "exe");
-            File.Copy(splitterExe, splitterExeLocation);
-
-
-            //Create a shortcut to the Splitter exe
-            string linkLocation = GetNewLinkName(shortcutsPath, "lnk");
-
-            //Create shortcut
-            using var shortcut = new WindowsShortcut
+        private void CreateSeparator(string splitterExeName)
+        {
+            try
             {
-                Path = splitterExeLocation,
-            };
-            shortcut.Save(linkLocation);
+                //Setup & config
+                var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+                string shortcutsPath = Path.Join(docsPath, "TaskSeparator11", "Shortcuts");
+                Directory.CreateDirectory(shortcutsPath);
 
+                //Ensure files are in the right place
+                EnsureSplitterFilesAreAvailable(appPath, shortcutsPath);
 
-            ShellExecute(IntPtr.Zero, "open", linkLocation, "--gui", null, ShowWindowCommands.SW_NORMAL);
+                //Make a copy of the Splitter exe
+                string splitterExe = Path.Join(appPath, splitterExeName);
+                string splitterExeLocation = GetNewLinkName(shortcutsPath, "exe");
+                File.Copy(splitterExe, splitterExeLocation);
 
-            Application.Exit();
+                //Create a shortcut to the Splitter exe
+                string linkLocation = GetNewLinkName(shortcutsPath, "lnk");
 
+                // Determine which icon to use based on which splitter we're creating
+                string iconFileName = splitterExeName == "SplitterBlank.exe" ? "dark-gray.ico" : "separator.ico";
+                string iconPath = Path.GetFullPath(Path.Join(shortcutsPath, "icons", iconFileName));
+
+                //Create shortcut
+                using var shortcut = new WindowsShortcut
+                {
+                    Path = splitterExeLocation,
+                    Arguments = "--gui",
+                    IconLocation = iconPath
+                };
+                shortcut.Save(linkLocation);
+
+                ShellExecute(IntPtr.Zero, "open", linkLocation, null, null, ShowWindowCommands.SW_NORMAL);
+
+                Application.Exit();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error creating separator:\n\n{ex.Message}",
+                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void EnsureSplitterFilesAreAvailable(string appPath, string shortcutsPath)
         {
-            if (File.Exists(Path.Join(shortcutsPath, "Splitter.dll"))) return;
-
             var dir = new DirectoryInfo(appPath);
-            var files = dir.GetFiles("Splitter*");
 
-            foreach(var f in files)
+            // Copy both Splitter and SplitterBlank files
+            var splitterFiles = dir.GetFiles("Splitter*");
+            var splitterBlankFiles = dir.GetFiles("SplitterBlank*");
+
+            var allFiles = splitterFiles.Concat(splitterBlankFiles);
+
+            foreach(var f in allFiles)
             {
                 var source = Path.Join(appPath, f.Name);
                 var dest = Path.Join(shortcutsPath, f.Name);
@@ -95,14 +115,25 @@ namespace TaskSplitter11
                 File.Copy(source, dest, true);
             }
 
-
-            
+            // Copy icons folder if it exists
+            string iconsSource = Path.Join(appPath, "icons");
+            string iconsDest = Path.Join(shortcutsPath, "icons");
+            if (Directory.Exists(iconsSource))
+            {
+                Directory.CreateDirectory(iconsDest);
+                foreach (var file in Directory.GetFiles(iconsSource))
+                {
+                    string fileName = Path.GetFileName(file);
+                    File.Copy(file, Path.Join(iconsDest, fileName), true);
+                }
+            }
         }
 
         private string GetNewLinkName(string path, string ext)
         {
             int count = 1;
-            char c = ext == "exe" ? '_' : ' ';
+            // Use underscore for both exe and lnk files to ensure valid Windows filenames
+            char c = '_';
 
             string shortcutLink = Path.Join(path, $"{c}.{ext}");
             do

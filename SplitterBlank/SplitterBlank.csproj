@@ -6,11 +6,18 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
-    <ApplicationIcon>icons\separator.ico</ApplicationIcon>
+    <ApplicationIcon>icons\dark-gray.ico</ApplicationIcon>
+    <AssemblyName>SplitterBlank</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="icons\separator.ico">
+    <Content Include="icons\dark-gray.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="icons\ultra-faint.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="icons\ultra-faint-dark.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
