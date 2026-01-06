@@ -86,7 +86,16 @@ namespace TaskSplitter11
                 };
                 shortcut.Save(linkLocation);
 
-                ShellExecute(IntPtr.Zero, "open", linkLocation, null, null, ShowWindowCommands.SW_NORMAL);
+                // Unblock the copied executable before launching
+                UnblockFile(splitterExeLocation);
+
+                var result = ShellExecute(IntPtr.Zero, "open", linkLocation, null, null, ShowWindowCommands.SW_NORMAL);
+
+                // ShellExecute returns a value > 32 on success
+                if ((int)result <= 32)
+                {
+                    throw new Exception($"Failed to launch separator. Error code: {(int)result}\n\nPlease try right-clicking the downloaded zip file and selecting 'Properties', then click 'Unblock' before extracting.");
+                }
 
                 Application.Exit();
             }
@@ -94,6 +103,24 @@ namespace TaskSplitter11
             {
                 MessageBox.Show($"Error creating separator:\n\n{ex.Message}",
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void UnblockFile(string filePath)
+        {
+            try
+            {
+                // Remove the Zone.Identifier alternate data stream that Windows adds to downloaded files
+                // This "unblocks" the file so it can execute
+                string zoneIdentifier = filePath + ":Zone.Identifier";
+                if (File.Exists(zoneIdentifier))
+                {
+                    File.Delete(zoneIdentifier);
+                }
+            }
+            catch
+            {
+                // Ignore errors - file might not have been blocked
             }
         }
 
@@ -113,6 +140,7 @@ namespace TaskSplitter11
                 var dest = Path.Join(shortcutsPath, f.Name);
 
                 File.Copy(source, dest, true);
+                UnblockFile(dest);
             }
 
             // Copy icons folder if it exists
@@ -124,7 +152,9 @@ namespace TaskSplitter11
                 foreach (var file in Directory.GetFiles(iconsSource))
                 {
                     string fileName = Path.GetFileName(file);
-                    File.Copy(file, Path.Join(iconsDest, fileName), true);
+                    string destFile = Path.Join(iconsDest, fileName);
+                    File.Copy(file, destFile, true);
+                    UnblockFile(destFile);
                 }
             }
         }
