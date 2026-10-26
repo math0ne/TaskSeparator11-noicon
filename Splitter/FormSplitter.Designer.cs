@@ -70,16 +70,16 @@
             this.label3.ForeColor = System.Drawing.Color.White;
             this.label3.Location = new System.Drawing.Point(12, 96);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(304, 25);
+            this.label3.Size = new System.Drawing.Size(304, 38);
             this.label3.TabIndex = 3;
-            this.label3.Text = "3. Finally, close this window to finish";
+            this.label3.Text = "3. Close this window. You will be asked if you want to add another separator.";
             // 
             // FormSplitter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(26)))), ((int)(((byte)(26)))), ((int)(((byte)(26)))));
-            this.ClientSize = new System.Drawing.Size(425, 128);
+            this.ClientSize = new System.Drawing.Size(425, 141);
             this.ControlBox = false;
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);

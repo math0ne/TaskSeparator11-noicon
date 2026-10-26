@@ -30,8 +30,8 @@ namespace TaskSplitter11
             IntPtr hwnd,
             string lpszOp,
             string lpszFile,
-            string lpszParams,
-            string lpszDir,
+            string? lpszParams,
+            string? lpszDir,
             ShowWindowCommands FsShowCmd
         );
 
@@ -58,7 +58,7 @@ namespace TaskSplitter11
             {
                 //Setup & config
                 var docsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-                string appPath = Path.GetDirectoryName(Application.ExecutablePath);
+                string appPath = Path.GetDirectoryName(Application.ExecutablePath) ?? AppContext.BaseDirectory;
                 string shortcutsPath = Path.Join(docsPath, "TaskSeparator11", "Shortcuts");
                 Directory.CreateDirectory(shortcutsPath);
 
@@ -81,7 +81,7 @@ namespace TaskSplitter11
                 using var shortcut = new WindowsShortcut
                 {
                     Path = splitterExeLocation,
-                    Arguments = "--gui",
+                    Arguments = $"--gui --launcher \"{Application.ExecutablePath}\"",
                     IconLocation = iconPath
                 };
                 shortcut.Save(linkLocation);
@@ -175,9 +175,5 @@ namespace TaskSplitter11
             return shortcutLink;
         }
 
-        private void label3_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }
